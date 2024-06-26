@@ -1,0 +1,69 @@
+{
+  "name": "weeek",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "main.electron.js",
+  "scripts": {
+    "electron:dev": "electron",
+    "electron:windows:build": "electron-builder --windows",
+    "electron:mac:build": "electron-builder --mac",
+    "load-nvm": "export NVM_DIR=\"$([ -z \"${XDG_CONFIG_HOME-}\" ] && printf %s \"${HOME}/.nvm\" || printf %s \"${XDG_CONFIG_HOME}/nvm\")\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"",
+    "build-universal": "npx electron-builder --universal",
+    "notarize": "xcrun notarytool submit ./dist/weeek-1.1.0-universal.dmg --keychain-profile \"notarytool-password\" --wait",
+    "get-notarization-log": "xcrun notarytool log $npm_config_request_id --keychain-profile \"notarytool-password\" developer_log.json",
+    "build-and-notarize": "npm run load-nvm && npm run build-universal && npm run notarize"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
+    "electron-notarize": "^1.2.2"
+  },
+  "build": {
+    "appId": "net.weeek.app.mac",
+    "productName": "Weeek",
+    "buildVersion": "1.1.0",
+    "copyright": "Copyright © 2024 GoldCarrot",
+    "files": [
+      "preload.js",
+      "**/*",
+      "!**/*.md",
+      "!**/*.{o,h}",
+      "!**/.*",
+      "!*.{iml,o,h}",
+      "!**/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/README.md",
+      "!**/node_modules/**/*.{o,h}",
+      "!**/node_modules/.bin",
+      "!**/node_modules/**/test",
+      "!**/node_modules/**/tests",
+      "public/*"
+    ],
+    "extraResources": [
+      "preload.js"
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "asar": true,
+      "asarUnpack": [
+        "preload.js"
+      ],
+      "icon": "build/icon.ico",
+      "category": "public.app-category.developer-tools",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.plist",
+      "entitlementsInherit": "entitlements.plist"
+    },
+    "afterSign": "notarizeApp.cjs",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "extraMetadata": {
+      "main": "main.electron.js"
+    }
+  }
+}
